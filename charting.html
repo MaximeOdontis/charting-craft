@@ -1,0 +1,1140 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
+<meta name="theme-color" content="#ffffff">
+<meta name="color-scheme" content="light">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Charting">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<title>Charting Craft</title>
+<style>
+:root{
+  --bg:#f3f5f7; --card:#fff; --ink:#0f1b2d; --mut:#64748b; --line:#dfe5ec; --soft:#f6f8fa;
+  --acc:#0d9488; --acc-d:#0f766e; --acc-s:#e6f6f4;
+  --red:#dc2626; --amber:#d97706; --blue:#2563eb; --pus:#ca8a04;
+  --lab:96px; --tw:54px;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+html{-webkit-tap-highlight-color:transparent;-webkit-text-size-adjust:100%;overscroll-behavior-y:none}
+button,.v,.dot,.c.one,.r-num .c{touch-action:manipulation;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+body{background:var(--bg);color:var(--ink);font:14px/1.4 -apple-system,BlinkMacSystemFont,"SF Pro Text","Inter","Segoe UI",sans-serif;-webkit-font-smoothing:antialiased}
+button,input,select,textarea{font:inherit;color:inherit}
+.wrap{max-width:1010px;margin:0 auto;padding:0 16px}
+header.top{background:var(--card);border-bottom:1px solid var(--line)}
+header.top .wrap{display:flex;align-items:center;gap:10px;height:54px}
+.brand{font-weight:700;font-size:17px;letter-spacing:-.01em;margin-right:auto;display:flex;align-items:center;gap:9px}
+.brand i{width:22px;height:22px;border-radius:7px;background:var(--acc);display:inline-block;position:relative}
+.brand i:after{content:"";position:absolute;left:5px;right:5px;top:10px;height:2px;background:#fff;box-shadow:0 -4px 0 #fff8,0 4px 0 #fff8}
+.btn{border:1px solid var(--line);background:var(--card);border-radius:9px;padding:7px 12px;cursor:pointer;font-weight:550;white-space:nowrap}
+@media (hover:hover) and (pointer:fine){.btn:hover{background:var(--soft)}.btn.pri:hover{background:var(--acc-d)}.v:hover{background:#0d948814}.dot:hover{border-color:#64748b}}
+.btn{transition:transform .1s ease-out,background .1s}
+.btn:active{transform:scale(.97);background:var(--soft)}
+.btn.pri:active{background:var(--acc-d)}
+nav.tools{display:flex;gap:10px;align-items:center}
+.only-sm{display:none}
+.btn.pri{background:var(--acc);border-color:var(--acc);color:#fff}
+
+.btn.sm{padding:4px 9px;font-size:12.5px;border-radius:7px}
+.btn.danger{color:var(--red)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px}
+
+/* patient */
+.patient{margin-top:14px;padding:12px 14px;display:grid;grid-template-columns:repeat(6,1fr);gap:10px}
+.patient label{display:flex;flex-direction:column;gap:3px;font-size:11.5px;color:var(--mut);font-weight:600;text-transform:uppercase;letter-spacing:.04em}
+.patient input,.patient select,.patient textarea{border:1px solid var(--line);border-radius:8px;padding:6px 8px;background:var(--soft);font-size:14px;text-transform:none;letter-spacing:0;font-weight:400;color:var(--ink);min-width:0;width:100%}
+.patient input:focus,.patient select:focus,.patient textarea:focus{outline:2px solid var(--acc);outline-offset:-1px;background:#fff}
+.patient .notes{grid-column:1/-1}
+.patient textarea{resize:vertical;min-height:34px;height:34px}
+
+/* voice */
+.voice{position:sticky;top:0;z-index:20;margin-top:12px;padding:10px 14px;display:grid;grid-template-columns:auto auto 1fr;gap:16px;align-items:center;box-shadow:0 6px 18px -12px #0f1b2d55}
+.mic{width:58px;height:58px;border-radius:50%;border:0;background:var(--ink);color:#fff;cursor:pointer;display:grid;place-items:center;position:relative;transition:background .15s,transform .1s}
+.mic:active{transform:scale(.95)}
+.mic svg{width:24px;height:24px}
+.mic.on{background:var(--red)}
+.mic.on:before{content:"";position:absolute;inset:-5px;border-radius:50%;border:2px solid var(--red);opacity:.5;animation:pulse 1.4s ease-out infinite}
+@keyframes pulse{from{transform:scale(.9);opacity:.6}to{transform:scale(1.25);opacity:0}}
+.pos{display:flex;align-items:center;gap:12px;padding-right:16px;border-right:1px solid var(--line)}
+.pos .num{font-size:40px;font-weight:750;letter-spacing:-.03em;line-height:1;font-variant-numeric:tabular-nums;min-width:52px;text-align:center}
+.pos .where{font-size:12.5px;color:var(--mut);font-weight:600;line-height:1.35}
+.pos .where b{display:block;color:var(--ink);font-size:14px}
+.slots{display:flex;gap:5px}
+.slot{width:36px;height:44px;border:1.5px solid var(--line);border-radius:9px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-weight:700;font-size:18px;font-variant-numeric:tabular-nums;background:var(--soft)}
+.slot small{font-size:9.5px;color:var(--mut);font-weight:700;line-height:1}
+.slot.cur{border-color:var(--acc);background:var(--acc-s);box-shadow:0 0 0 3px #0d948822}
+.hear{min-width:0}
+.hear .status{font-size:12px;font-weight:650;color:var(--mut);display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.hear .status .st{color:var(--ink)}
+.hear .status .st.on{color:var(--red)}
+.hear .status label{font-weight:500;display:flex;gap:4px;align-items:center;cursor:pointer}
+.hear .interim{font-size:15px;min-height:22px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;direction:rtl;text-align:left;color:var(--acc-d);font-weight:600}
+.hear .interim span{direction:ltr;unicode-bidi:bidi-override}
+.log{font-size:12px;color:var(--mut);height:34px;overflow:hidden;display:flex;flex-direction:column;justify-content:flex-end}
+.log div{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.log div:last-child{color:var(--ink)}
+.log .err{color:var(--red);font-weight:600}
+.log q{quotes:"« " " »";font-style:italic;opacity:.75}
+
+/* chart */
+#sheet{margin-top:12px;padding:14px 12px 16px;overflow-x:auto}
+.sheet-in{width:calc(var(--lab) + 16*var(--tw));margin:0 auto}
+.arch h3{margin:0 0 6px;font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:var(--mut)}
+.arch+.arch{margin-top:22px}
+.row{display:grid;grid-template-columns:var(--lab) repeat(16,var(--tw))}
+.lab{font-size:11px;color:var(--mut);font-weight:600;display:flex;align-items:center;justify-content:flex-end;padding-right:8px;white-space:nowrap}
+.c{height:21px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);display:grid;grid-template-columns:repeat(3,1fr);align-items:center;justify-items:center;font-variant-numeric:tabular-nums;background:#fff}
+.row>.c:nth-child(2){border-left:1px solid var(--line)}
+.row>.c:nth-child(10){border-left:2px solid #94a3b8}
+.row.first .c{border-top:1px solid var(--line)}
+.c.one{grid-template-columns:1fr;cursor:pointer}
+.c.abs{background:repeating-linear-gradient(135deg,#f1f4f7 0 4px,#e7ebf0 4px 8px)}
+.c.abs>*{visibility:hidden}
+.c.col{background:#f0fbf9}
+.r-num .c{height:26px;font-weight:700;font-size:13.5px;background:var(--soft);cursor:pointer;user-select:none}
+.r-num .c.cur{background:var(--acc);color:#fff}
+.r-num .c.abs{color:#94a3b8;background:repeating-linear-gradient(135deg,#f1f4f7 0 4px,#e7ebf0 4px 8px)}
+.r-num .c.abs>*{visibility:visible;text-decoration:line-through}
+.r-num .c.imp span:after{content:"";display:inline-block;width:6px;height:6px;border-radius:50%;background:#64748b;margin-left:3px;vertical-align:middle}
+.r-num .c.cur.imp span:after{background:#fff}
+.v{width:100%;height:100%;display:grid;place-items:center;cursor:pointer;font-size:13px;font-weight:600;border-radius:4px}
+.v.mid{color:var(--amber);font-weight:750}
+.v.hi{color:#fff;background:var(--red);font-weight:750}
+.v.cur{box-shadow:inset 0 0 0 2px var(--acc);background:var(--acc-s)}
+.v.hi.cur{background:var(--red)}
+.r-rec .v{font-weight:500;color:#334155}
+.r-prev .c{background:var(--soft)}
+.r-prev .v{font-size:11.5px;font-weight:500;color:#94a3b8;cursor:default}
+.r-prev .v.better{color:#15803d;font-weight:700}
+.r-prev .v.worse{color:var(--red);font-weight:700}
+.dot{width:10px;height:10px;border-radius:50%;border:1.3px solid #cbd5e1;cursor:pointer;background:#fff}
+.r-bop .dot.on{background:var(--red);border-color:var(--red)}
+.r-pl .dot.on{background:var(--blue);border-color:var(--blue)}
+.r-sup .dot.on{background:var(--pus);border-color:var(--pus)}
+.r-flag .c{height:17px}
+.r-bop .dot.was{box-shadow:0 0 0 2px #dc262650;border-color:var(--red)}
+.r-pl .dot.was{box-shadow:0 0 0 2px #2563eb50;border-color:var(--blue)}
+.r-sup .dot.was{box-shadow:0 0 0 2px #ca8a0460;border-color:var(--pus)}
+.pv{font-size:10px;font-weight:600;color:#94a3b8;margin-right:1px}
+.r-mob .c,.r-furc .c{font-size:12.5px;font-weight:700;height:19px}
+.r-mob .c>span:empty:before,.r-furc .c>span:empty:before{content:"·";color:#cbd5e1}
+.g{grid-column:2/-1;display:block;background:#fff;border-left:1px solid var(--line);border-right:1px solid var(--line)}
+.r-g .lab{font-size:12px;color:var(--ink);font-weight:700}
+.r-g.sep .g{border-bottom:1px dashed #cbd5e1}
+.gl{stroke:#eef2f6;stroke-width:1}
+.gl5{stroke:#e2e8f0}
+
+/* summary */
+#summary{margin:12px 0 40px;padding:14px}
+#summary h3{margin:0 0 10px;font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:var(--mut)}
+.kpis{display:grid;grid-template-columns:repeat(6,1fr);gap:8px}
+.kpi{border:1px solid var(--line);border-radius:10px;padding:8px 10px;background:var(--soft)}
+.kpi b{display:block;font-size:20px;font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.kpi span{font-size:11.5px;color:var(--mut);font-weight:600}
+.kpi em{font-style:normal;font-size:11.5px;font-weight:700;margin-left:5px}
+.kpi em.better{color:#15803d}.kpi em.worse{color:var(--red)}
+.cmp-banner{display:flex;gap:10px;align-items:center;margin-bottom:10px;font-size:13px;background:var(--acc-s);border-radius:9px;padding:7px 10px}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:11.5px;color:var(--mut);margin-top:10px}
+.legend i{display:inline-block;width:14px;height:3px;border-radius:2px;vertical-align:middle;margin-right:4px}
+.print-head{display:none}
+
+/* dialogs */
+dialog{border:0;border-radius:16px;padding:0;max-width:min(720px,92vw);width:720px;box-shadow:0 30px 80px -20px #0f1b2d66;color:var(--ink)}
+dialog::backdrop{background:#0f1b2d55}
+.dlg-h{display:flex;align-items:center;padding:14px 18px;border-bottom:1px solid var(--line);font-weight:700;font-size:16px}
+.dlg-h button{margin-left:auto}
+.dlg-b{padding:14px 18px 18px;max-height:70vh;overflow:auto}
+.lib-item{display:flex;align-items:center;gap:8px;padding:9px 0;border-bottom:1px solid var(--line)}
+.lib-item .who{margin-right:auto;min-width:0}
+.lib-item .who b{display:block}
+.lib-item .who span{font-size:12px;color:var(--mut)}
+.help table{border-collapse:collapse;width:100%}
+.help td{padding:5px 8px;border-bottom:1px solid var(--line);vertical-align:top;font-size:13.5px}
+.help td:first-child{font-weight:650;white-space:nowrap;color:var(--acc-d)}
+.help h4{margin:14px 0 4px;font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--mut)}
+.help p{margin:6px 0;font-size:13.5px}
+.note{font-size:12.5px;color:var(--mut);margin-top:10px}
+.toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:var(--ink);color:#fff;padding:9px 14px;border-radius:10px;font-weight:600;font-size:13.5px;opacity:0;pointer-events:none;transition:opacity .2s;z-index:50}
+.toast.show{opacity:1}
+
+/* ---- pavé numérique tactile ---- */
+.kp{display:none}
+.kp-opt{display:none!important}
+@media (pointer:coarse){.kp-opt{display:flex!important}}
+.toast{bottom:calc(var(--kp,0px) + 22px)}
+body{padding-bottom:var(--kp,0px)}
+.v{scroll-margin-top:calc(var(--stick,150px) + 8px);scroll-margin-bottom:calc(var(--kp,0px) + 12px);scroll-margin-left:calc(var(--lab) + 8px)}
+@media screen{.row>.lab{position:sticky;left:0;z-index:3;background:var(--card)}.arch h3{position:sticky;left:12px;width:max-content}}
+@media screen and (pointer:coarse){
+  :root{--tw:64px}
+  .kp{display:grid}
+  body.kp-off .kp{display:none}
+  .patient input,.patient select,.patient textarea{font-size:16px}
+  .c{height:31px}
+  .v{font-size:15.5px}
+  .dot{width:15px;height:15px}
+  .r-flag .c,.r-mob .c,.r-furc .c{height:27px}
+  .r-mob .c,.r-furc .c{font-size:14px}
+  .r-num .c{height:34px;font-size:15px}
+  .r-prev .v{font-size:13px}
+  .g{width:100%;height:auto}
+}
+.kp{position:fixed;left:0;right:0;bottom:0;z-index:40;grid-template-columns:repeat(8,1fr);gap:6px;
+  padding:8px max(10px,env(safe-area-inset-right)) calc(8px + env(safe-area-inset-bottom)) max(10px,env(safe-area-inset-left));
+  background:#ffffffeb;-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);border-top:1px solid var(--line);box-shadow:0 -8px 24px -18px #0f1b2d66}
+.kp button{height:46px;border:1px solid var(--line);border-radius:11px;background:var(--card);font-size:21px;font-weight:650;font-variant-numeric:tabular-nums;padding:0;color:var(--ink);transition:transform .08s ease-out,background .08s}
+.kp button.fn{background:var(--soft);font-size:18px;color:#334155}
+.kp button:active{transform:scale(.94);background:var(--acc-s)}
+.kp button.on{background:var(--acc);border-color:var(--acc);color:#fff}
+
+@media (max-width:900px){.patient{grid-template-columns:repeat(3,1fr)}.kpis{grid-template-columns:repeat(3,1fr)}.voice{grid-template-columns:auto 1fr}.hear{grid-column:1/-1}}
+
+@media screen and (max-width:700px){
+  :root{--lab:76px}
+  .lab{font-size:10.5px;padding-right:6px}
+  .r-g .lab{font-size:10.5px}
+  .wrap{padding-left:max(10px,env(safe-area-inset-left));padding-right:max(10px,env(safe-area-inset-right))}
+  header.top .wrap{height:auto;flex-wrap:wrap;gap:8px;padding-top:calc(8px + env(safe-area-inset-top));padding-bottom:8px}
+  .brand{font-size:16px}
+  nav.tools{flex:1 1 100%;overflow-x:auto;gap:6px;scrollbar-width:none;margin:0 -10px;padding:0 10px}
+  nav.tools::-webkit-scrollbar{display:none}
+  nav.tools .btn{padding:7px 11px;font-size:14px}
+  .only-sm{display:inline}.only-lg{display:none}
+  .pt-toggle{display:flex!important}
+  .patient{display:none;grid-template-columns:1fr 1fr;margin-top:8px}
+  body.pt-open .patient{display:grid}
+  .voice{grid-template-columns:auto 1fr;gap:6px 10px;padding:8px 10px;margin-top:8px;top:env(safe-area-inset-top,0px)}
+  .mic{width:54px;height:54px}
+  .pos{border-right:0;padding-right:0;gap:8px;justify-content:space-between}
+  .pos .num{font-size:34px;min-width:46px}
+  .pos .where{font-size:12px}.pos .where b{font-size:13px}
+  .slot{width:33px;height:42px;font-size:17px}
+  .hear{grid-column:1/-1}
+  .hear .status{font-size:11.5px}
+  .hear .interim{font-size:14px;min-height:19px}
+  .log{height:auto;max-height:34px;font-size:12px}
+  #sheet{padding:10px 0 12px;margin-top:8px;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch}
+  .sheet-in{margin:0}
+  #summary{padding:12px;margin-bottom:20px}
+  .kpis{grid-template-columns:1fr 1fr}
+  .cmp-banner{flex-wrap:wrap}
+  dialog{max-width:calc(100vw - 20px)}
+  .dlg-b{max-height:75dvh;padding:12px 14px 16px}
+  .lib-item{flex-wrap:wrap}.lib-item .who{flex:1 1 100%}
+  .help td:first-child{white-space:normal}
+}
+.pt-toggle{display:none;width:100%;margin-top:8px;align-items:center;gap:8px;padding:10px 12px;border:1px solid var(--line);border-radius:12px;background:var(--card);font-size:14px;text-align:left;cursor:pointer}
+.pt-toggle b{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pt-toggle span{color:var(--mut);font-size:12.5px;font-weight:600}
+.pt-toggle:after{content:"▾";color:var(--mut)}
+body.pt-open .pt-toggle:after{content:"▴"}
+
+@page{size:A4 portrait;margin:9mm}
+@media print{
+  body{background:#fff}
+  .no-print,header.top,.voice,.patient,.toast,.kp,.pt-toggle{display:none!important}
+  body{padding:0!important}
+  *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .wrap{max-width:none;padding:0}
+  .card{border:0;border-radius:0}
+  #sheet{padding:0;margin:8px 0 0;overflow:visible;zoom:.74}
+  #summary{padding:0;margin:10px 0 0;zoom:.86}
+  .c.col{background:#fff}.v.cur{box-shadow:none;background:none}.r-num .c.cur{background:var(--soft);color:var(--ink)}
+  .cur-col{display:none}
+  .print-head{display:flex;justify-content:space-between;align-items:flex-end;border-bottom:2px solid var(--ink);padding-bottom:6px;gap:20px}
+  .print-head h1{margin:0;font-size:19px;letter-spacing:-.01em}
+  .print-head .sub{font-size:12px;color:var(--mut)}
+  .print-head .r{text-align:right;font-size:12px}
+  .print-notes{font-size:12px;margin-top:8px}
+  .arch{break-inside:avoid}
+  .kpis{grid-template-columns:repeat(6,1fr)}
+  .cmp-banner{display:none}
+  body.cmp #sheet{zoom:.67}
+  body.cmp #summary{zoom:.8}
+  #chart{margin-top:12px}
+}
+</style>
+</head>
+<body>
+
+<header class="top no-print">
+  <div class="wrap">
+    <div class="brand"><i></i>Charting Craft</div>
+    <nav class="tools">
+      <button class="btn" id="bNew">Nouveau</button>
+      <button class="btn" id="bLib">Dossiers</button>
+      <button class="btn" id="bSave">Enregistrer</button>
+      <button class="btn" id="bHelp"><span class="only-lg">Commandes vocales</span><span class="only-sm">Aide</span></button>
+      <button class="btn pri" id="bPdf"><span class="only-lg">Exporter en PDF</span><span class="only-sm">PDF</span></button>
+    </nav>
+  </div>
+</header>
+
+<div class="wrap">
+  <button class="pt-toggle no-print" id="ptToggle"><b id="ptSum">Patient</b><span id="ptDate"></span></button>
+  <section class="patient card no-print" id="patient">
+    <label>Nom<input data-k="nom" autocomplete="off"></label>
+    <label>Prénom<input data-k="prenom" autocomplete="off"></label>
+    <label>Né(e) le<input data-k="ddn" type="date"></label>
+    <label>Date d'examen<input data-k="date" type="date"></label>
+    <label>Praticien<input data-k="praticien" autocomplete="off"></label>
+    <label>Type<select data-k="type"><option>Bilan initial</option><option>Réévaluation</option><option>Maintenance</option></select></label>
+    <label class="notes">Notes<textarea data-k="notes" rows="1"></textarea></label>
+  </section>
+
+  <section class="voice card no-print">
+    <button class="mic" id="mic" title="Démarrer / arrêter la dictée (barre d'espace)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>
+    </button>
+    <div class="pos">
+      <div class="num" id="pNum">18</div>
+      <div>
+        <div class="where"><b id="pFace">Vestibulaire</b><span id="pParam">Sondage</span></div>
+      </div>
+      <div class="slots" id="pSlots"></div>
+    </div>
+    <div class="hear">
+      <div class="status">
+        <span class="st" id="vStatus">Dictée arrêtée</span>
+        <label><input type="checkbox" id="oSound" checked> bips</label>
+        <label class="kp-opt"><input type="checkbox" id="oKp" checked> pavé</label>
+      </div>
+      <div class="interim"><span id="vInterim"></span></div>
+      <div class="log" id="vLog"></div>
+    </div>
+  </section>
+
+  <section class="card" id="sheet">
+    <div class="sheet-in">
+      <div class="print-head" id="printHead"></div>
+      <div id="chart"></div>
+    </div>
+  </section>
+
+  <section class="card" id="summary"></section>
+</div>
+
+<dialog id="dLib">
+  <div class="dlg-h">Dossiers <button class="btn sm" data-close>Fermer</button></div>
+  <div class="dlg-b">
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px">
+      <button class="btn sm" id="bExport">Exporter le charting actuel (fichier)</button>
+      <button class="btn sm" id="bImport">Importer un fichier…</button>
+      <button class="btn sm" id="bImportRef">Importer un fichier comme comparaison…</button>
+      <input type="file" id="fImport" accept=".json,application/json" hidden>
+    </div>
+    <div id="libList"></div>
+    <p class="note">Les dossiers sont conservés dans ce navigateur, sur cet appareil uniquement (sur iPhone, Safari peut les effacer après quelques semaines sans utilisation si l'app n'est pas ajoutée à l'écran d'accueil). Pour une sauvegarde durable ou un transfert, utilisez « Exporter » (fichier .json), que vous pourrez réimporter à tout moment.</p>
+  </div>
+</dialog>
+
+<dialog id="dHelp">
+  <div class="dlg-h">Commandes vocales <button class="btn sm" data-close>Fermer</button></div>
+  <div class="dlg-b help">
+    <p>Ordre de saisie : toujours de gauche à droite sur l'écran. <b>Vestibulaire 18→28</b>, puis <b>palatin 18→28</b>, puis <b>vestibulaire 48→38</b>, puis <b>lingual 48→38</b>. Trois valeurs par dent (secteurs 1 et 4 : distal, central, mésial — secteurs 2 et 3 : mésial, central, distal). Après la 3<sup>e</sup> valeur, on passe seul à la dent suivante ; les dents absentes sont sautées.</p>
+    <h4>Saisie</h4>
+    <table>
+      <tr><td>« 17, 6, 4, 3 »</td><td>Se place sur la 17 puis saisit 3 valeurs. Continuez sans redire le numéro : « 5, 4, 2 » remplit la 16.</td></tr>
+      <tr><td>« dent 17 »</td><td>Se place sur la 17 (forme sûre, utile si un nombre est mal interprété).</td></tr>
+      <tr><td>« 17 distal 6 4 3 »</td><td>Commence au site nommé puis continue.</td></tr>
+      <tr><td>« vestibulaire » / « palatin » / « lingual »</td><td>Change de face. « 16 palatin 5 4 3 » fonctionne aussi.</td></tr>
+      <tr><td>« sondage » / « récession »</td><td>Choisit la mesure dictée. Récession : valeur positive = récession ; « moins 2 » = gencive 2 mm au-dessus de la jonction émail-cément.</td></tr>
+      <tr><td>« valeur 10 », « valeur 12 »</td><td>Obligatoire pour une valeur de 10 mm ou plus : « 10 » seul est ignoré (c'est presque toujours « dix-sept » ou « distal » mal entendu) et 12 serait la dent 12.</td></tr>
+      <tr><td>« suivante » / « précédente »</td><td>Change de dent sans saisir.</td></tr>
+    </table>
+    <h4>Corrections</h4>
+    <table>
+      <tr><td>« 17 en mésial 4 » ou « mésial 17, 4 »</td><td>Corrige ce seul site (déjà rempli) puis revient où vous en étiez.</td></tr>
+      <tr><td>« mésial 4 »</td><td>Corrige le site de la dent qui vient d'être dictée.</td></tr>
+      <tr><td>« correction 17, 6 4 3 »</td><td>Redicte toute la 17 puis revient où vous en étiez.</td></tr>
+      <tr><td>« annuler » / « rétablir »</td><td>Annule ou rétablit la dernière action (répétable).</td></tr>
+    </table>
+    <h4>Dent et sites</h4>
+    <table>
+      <tr><td>« saignement »</td><td>Saignement sur les 3 sites de la dent qui vient d'être dictée. « saignement mésial », « 16 saignement distal central », « saignement 12 », « plaque 14 central ». Idem « plaque » et « suppuration » (ou « pus »).</td></tr>
+      <tr><td>« pas de saignement »</td><td>Retire le marquage (aussi « effacer plaque mésial »).</td></tr>
+      <tr><td>« 16 mobilité 2 »</td><td>Mobilité 0 à 3.</td></tr>
+      <tr><td>« 16 furcation 2 »</td><td>Atteinte de furcation 0 à 3, sur la face en cours.</td></tr>
+      <tr><td>« 18 absente » / « 36 implant » / « 18 présente »</td><td>Statut de la dent. « absente » seul s'applique à la dent en cours.</td></tr>
+      <tr><td>« pause »</td><td>Arrête la dictée.</td></tr>
+    </table>
+    <h4>Sur téléphone</h4>
+    <p>Touchez une case pour vous y placer, puis utilisez le pavé en bas : chiffres, ‹ › pour changer de site, ⌫ pour effacer, − pour une valeur négative, ↶ pour annuler, » pour passer à la dent suivante. Le tableau défile seul jusqu'à la dent en cours ; faites-le glisser horizontalement pour voir le reste. La case « pavé » masque le pavé si vous ne faites que dicter.</p>
+    <h4>Clavier et souris</h4>
+    <p>Cliquez une case pour vous y placer, puis tapez les chiffres : même avancée automatique. ← → pour se déplacer, ⌫ pour effacer, « - » avant un chiffre pour une valeur négative, double-clic pour une valeur à deux chiffres. Cliquez un numéro de dent pour changer son statut (présente → implant → absente), un point pour saignement / plaque / pus, une case mobilité ou furcation pour changer le grade. Barre d'espace : micro.</p>
+    <p class="note">La reconnaissance vocale utilise le service de Google Chrome : seul le son est transmis pendant la dictée (connexion Internet nécessaire). Les données du patient restent sur ce Mac.</p>
+  </div>
+</dialog>
+
+<div class="toast" id="toast"></div>
+
+<div class="kp no-print" id="kp">
+  <button data-k="1">1</button><button data-k="2">2</button><button data-k="3">3</button><button data-k="4">4</button><button data-k="5">5</button>
+  <button class="fn" data-k="left" aria-label="Site précédent">‹</button><button class="fn" data-k="right" aria-label="Site suivant">›</button><button class="fn" data-k="back" aria-label="Effacer">⌫</button>
+  <button data-k="6">6</button><button data-k="7">7</button><button data-k="8">8</button><button data-k="9">9</button><button data-k="0">0</button>
+  <button class="fn" data-k="-" id="kpMinus" aria-label="Valeur négative">−</button><button class="fn" data-k="undo" aria-label="Annuler">↶</button><button class="fn" data-k="next" aria-label="Dent suivante">»</button>
+</div>
+
+<script>
+'use strict';
+/* ───────── Modèle ───────── */
+const UPPER=[18,17,16,15,14,13,12,11,21,22,23,24,25,26,27,28];
+const LOWER=[48,47,46,45,44,43,42,41,31,32,33,34,35,36,37,38];
+const ALL=[...UPPER,...LOWER];
+const PASSES=[['U','V'],['U','O'],['L','V'],['L','O']];
+const $=s=>document.querySelector(s);
+const archOf=t=>t<30?'U':'L';
+const teethOf=a=>a==='U'?UPPER:LOWER;
+const isTooth=n=>ALL.includes(n);
+const leftDistal=t=>{const q=Math.floor(t/10);return q===1||q===4;};
+const siteIdx=(t,s)=>s==='C'?1:(s==='D'?(leftDistal(t)?0:2):(leftDistal(t)?2:0));
+const siteLetter=(t,i)=>i===1?'C':(((i===0)===leftDistal(t))?'D':'M');
+const SITE={M:'mésial',C:'central',D:'distal'};
+const faceName=(t,f)=>f==='V'?'Vestibulaire':(archOf(t)==='U'?'Palatin':'Lingual');
+const faceShort=(t,f)=>f==='V'?'V':(archOf(t)==='U'?'P':'L');
+const PARAM={pd:'Sondage',rec:'Récession'};
+const FLAG={bop:'saignement',pl:'plaque',sup:'suppuration'};
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const today=()=>{const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');};
+const frDate=s=>s&&/^\d{4}-\d{2}-\d{2}/.test(s)?s.slice(8,10)+'/'+s.slice(5,7)+'/'+s.slice(0,4):(s||'');
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,7);
+
+function emptyFace(){return{pd:[null,null,null],rec:[null,null,null],bop:[false,false,false],pl:[false,false,false],sup:[false,false,false],furc:0};}
+function emptyTooth(){return{status:'present',mob:0,V:emptyFace(),O:emptyFace()};}
+function newChart(){const teeth={};ALL.forEach(t=>teeth[t]=emptyTooth());
+  return{app:'charting-craft',version:1,id:uid(),patient:{nom:'',prenom:'',ddn:'',date:today(),praticien:'',type:'Bilan initial',notes:''},teeth};}
+function newCtx(){return{expect:null,expectTooth:false,forceVal:false,minus:false,neg:false,corr:false,oneShot:null,pendTen:false,pendSite:null,jumpFresh:false,prevCursor:null,lastFlag:null,annot:null};}
+
+let chart=newChart();
+let cursor={tooth:18,face:'V',site:0,param:'pd'};
+let ctx=newCtx();
+let lastEntry=null;
+let undo=[],redo=[];
+let ref=null;            // charting de comparaison
+let base=null;           // état avant l'aperçu vocal en cours
+let strict=false;
+
+const snap=()=>JSON.stringify({teeth:chart.teeth,cursor,ctx,lastEntry});
+function restore(s){const o=JSON.parse(s);chart.teeth=o.teeth;cursor=o.cursor;ctx=o.ctx;lastEntry=o.lastEntry;}
+function pushUndo(annot){
+  // pour une annotation dictée juste après un numéro de dent, l'annulation revient à la position d'avant
+  if(annot&&ctx.jumpFresh&&ctx.prevCursor){
+    const c=cursor,x=ctx;cursor={...ctx.prevCursor,param:c.param};ctx={...x,jumpFresh:false,prevCursor:null,annot:null,expect:null};
+    undo.push(snap());cursor=c;ctx=x;
+  }else undo.push(snap());
+  if(undo.length>400)undo.shift();redo=[];
+}
+const takeBase=()=>({s:snap(),ul:undo.length,redo:redo.slice()});
+function restoreBase(){restore(base.s);undo.length=Math.min(undo.length,base.ul);redo=base.redo.slice();}
+
+/* ───────── Navigation ───────── */
+function firstOfPass(pi){const [a,f]=PASSES[pi];const t=teethOf(a).find(t=>chart.teeth[t].status!=='absent');return t?{tooth:t,face:f}:null;}
+function nextTooth(t,f){
+  const T=teethOf(archOf(t));
+  for(let i=T.indexOf(t)+1;i<T.length;i++) if(chart.teeth[T[i]].status!=='absent') return{tooth:T[i],face:f,pass:false};
+  let pi=PASSES.findIndex(p=>p[0]===archOf(t)&&p[1]===f);
+  for(pi++;pi<PASSES.length;pi++){const n=firstOfPass(pi);if(n)return{...n,pass:true};}
+  return null;
+}
+function prevTooth(t,f){
+  const T=teethOf(archOf(t));
+  for(let i=T.indexOf(t)-1;i>=0;i--) if(chart.teeth[T[i]].status!=='absent') return{tooth:T[i],face:f};
+  let pi=PASSES.findIndex(p=>p[0]===archOf(t)&&p[1]===f);
+  for(pi--;pi>=0;pi--){const [a,ff]=PASSES[pi];const R=teethOf(a).slice().reverse();const x=R.find(x=>chart.teeth[x].status!=='absent');if(x)return{tooth:x,face:ff};}
+  return null;
+}
+function fixCursor(){
+  if(chart.teeth[cursor.tooth].status==='absent'){
+    const n=nextTooth(cursor.tooth,cursor.face)||prevTooth(cursor.tooth,cursor.face);
+    if(n){cursor.tooth=n.tooth;cursor.face=n.face;cursor.site=0;}
+  }
+}
+
+/* ───────── Analyse de la dictée ───────── */
+const W={};
+function def(type,val,words){words.split(' ').forEach(w=>W[w]={type,val});}
+def('n',0,'zero zeros');def('n',1,'un une hein');def('n',2,'deux');def('n',3,'trois troie');
+def('n',4,'quatre quatres cat');def('n',5,'cinq sein saint sink');def('n',6,'six sis cis');
+def('n',7,'sept set cette cet');def('n',8,'huit huits wit');def('n',9,'neuf neuve');def('n',10,'dix dis');
+def('n',11,'onze');def('n',12,'douze');def('n',13,'treize');def('n',14,'quatorze');def('n',15,'quinze');def('n',16,'seize');
+def('tens',20,'vingt vint vin vingts');def('tens',30,'trente');def('tens',40,'quarante');
+def('face','V','vestibulaire vestibulaires vestibule vesti buccal buccale');
+def('face','O','palatin palatine palatins palatines palatal palatale palais lingual linguale linguaux linguales');
+def('param','pd','sondage sondages profondeur profondeurs poche poches');
+def('param','rec','recession recessions marge marges retraction');
+def('site','M','mesial mesiale mesiales mesiaux mesio mesia medial mediale mezial meziale messial messiale median mediane medians medianes mediale medial');
+def('site','D','distal distale distales distaux disto dista distalle distalles dystal distance distances');
+def('site','C','central centrale centraux centre milieu');
+def('all',1,'tout tous toute toutes partout');
+def('flag','bop','saignement saignements saigne sang');
+def('flag','pl','plaque plaques');
+def('flag','sup','suppuration suppurations pus');
+def('mob',1,'mobilite mobilites mobile');
+def('furc',1,'furcation furcations furca');
+def('status','absent','absente absent absentes manquante manquant extraite');
+def('status','implant','implant implants');
+def('status','present','presente present');
+def('next',1,'suivante suivant suivantes passer saute sauter');
+def('prev',1,'precedente precedent');
+def('undo',1,'annuler annule annulez annulation');
+def('redo',1,'retablir retablis retablissez');
+def('neg',1,'pas sans aucun aucune effacer efface effacez supprimer supprime');
+def('corr',1,'correction corrections corriger corrige corrigez');
+def('tooth',1,'dent dents');
+def('val',1,'valeur valeurs');
+def('minus',1,'moins');
+def('stop',1,'pause stop');
+const IGNORE=new Set('en a la le les de du des et au aux cote face sur mm millimetre millimetres plus h er eme euh sites site grade classe degre'.split(' '));
+
+const DIST_TAIL=new Set('al tal tale tales talle sal sale sales stal stale stales'.split(' '));
+function tokenize(text){
+  let s=text.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');
+  s=s.replace(/(^|[\s,;:])[-−–](?=\d)/g,'$1 moins ').replace(/(\d)([a-z])/g,'$1 $2').replace(/([a-z])(\d)/g,'$1 $2').replace(/[^a-z0-9]+/g,' ').trim();
+  if(!s)return[];
+  const raw=[];
+  for(const w of s.split(' ')){
+    if(/^\d+$/.test(w)) raw.push({type:'d',s:w,w});
+    else if(IGNORE.has(w)) continue;
+    else if(W[w]) raw.push({...W[w],w});
+    else raw.push({type:'?',w});
+  }
+  const out=[];
+  for(let i=0;i<raw.length;i++){
+    const k=raw[i],n=raw[i+1];
+    const unit=n&&((n.type==='n'&&n.val>=1&&n.val<=9)||(n.type==='d'&&n.s.length===1&&n.s!=='0'))?(n.type==='n'?n.val:+n.s):null;
+    const isTen=(k.type==='n'&&k.val===10)||(k.type==='d'&&k.s==='10');
+    if(isTen&&n&&n.type==='?'&&DIST_TAIL.has(n.w)){out.push({type:'site',val:'D',w:k.w+' '+n.w});i++;continue;}
+    if(k.type==='d'&&k.s==='10'&&n&&((n.type==='d'&&(n.s==='7'||n.s==='8'))||(n.type==='n'&&n.val>=7&&n.val<=8))){out.push({type:'n',val:10+(n.type==='d'?+n.s:n.val),w:k.w+' '+n.w});i++;continue;}
+    if(k.type==='d'&&['20','30','40'].includes(k.s)&&unit!=null&&unit<=8){out.push({type:'n',val:+k.s+unit,w:k.w+' '+n.w});i++;continue;}
+    if(k.type==='tens'){ if(unit!=null){out.push({type:'n',val:k.val+unit,w:k.w+' '+n.w});i++;} continue; }
+    if(k.type==='n'&&k.val===10&&n&&n.type==='n'&&n.val>=7&&n.val<=9){out.push({type:'n',val:10+n.val,w:k.w+' '+n.w});i++;continue;}
+    out.push(k);
+  }
+  return out;
+}
+
+function annotTarget(){
+  if(ctx.annot) return ctx.annot;
+  if(ctx.jumpFresh||cursor.site>0||!lastEntry) return{tooth:cursor.tooth,face:cursor.face};
+  return{tooth:lastEntry.tooth,face:lastEntry.face};
+}
+function endAnnot(){
+  if(ctx.jumpFresh){cursor={...ctx.prevCursor,param:cursor.param};ctx.jumpFresh=false;ctx.prevCursor=null;}
+  fixCursor();
+}
+function jump(t,out){
+  ctx.prevCursor=ctx.oneShot?ctx.oneShot.ret:(ctx.jumpFresh?ctx.prevCursor:{...cursor});
+  ctx.oneShot=null;ctx.annot=null;
+  const ps=ctx.pendSite;ctx.pendSite=null;
+  cursor.tooth=t;cursor.site=0;ctx.jumpFresh=true;
+  out.acts.push({k:'jump',t});
+  if(ps){onSite({val:ps},out);ctx.pendSite=null;}
+}
+function setValue(v,out){
+  if(ctx.minus){v=-v;ctx.minus=false;}
+  const T=chart.teeth[cursor.tooth];
+  if(T.status==='absent'){out.err.push(`dent ${cursor.tooth} absente — valeur ignorée`);return;}
+  if(cursor.site>2){out.err.push('charting terminé — dites un numéro de dent');return;}
+  const p=cursor.param;
+  if((p==='pd'&&(v<0||v>15))||(p==='rec'&&(v<-10||v>15))){out.err.push(`valeur ${v} hors limites`);return;}
+  if(ctx.jumpFresh&&ctx.corr&&!ctx.oneShot) ctx.oneShot={ret:ctx.prevCursor,remaining:3};
+  ctx.corr=false;ctx.jumpFresh=false;ctx.annot=null;ctx.pendSite=null;
+  pushUndo();
+  const arr=T[cursor.face][p];const old=arr[cursor.site];arr[cursor.site]=v;
+  out.acts.push({k:'val',t:cursor.tooth,f:cursor.face,s:cursor.site,v,old,fix:!!ctx.oneShot});
+  if(ctx.oneShot){
+    ctx.oneShot.remaining--;
+    if(ctx.oneShot.remaining<=0||cursor.site>=2){cursor={...ctx.oneShot.ret,param:p};ctx.oneShot=null;fixCursor();}
+    else cursor.site++;
+    return;
+  }
+  cursor.site++;
+  if(cursor.site>2){
+    lastEntry={tooth:cursor.tooth,face:cursor.face};out.done++;
+    const n=nextTooth(cursor.tooth,cursor.face);
+    if(n){cursor.tooth=n.tooth;cursor.face=n.face;cursor.site=0;if(n.pass)out.pass=true;}
+    else out.finished=true;
+  }
+}
+function onNumber(k,out,nx){
+  const num=k.type==='d'?parseInt(k.s,10):k.val;
+  if(ctx.expect){
+    const e=ctx.expect;
+    if(num>10&&isTooth(num)&&(k.type==='n'||k.s.length===2)){e.tooth=num;return;}
+    ctx.expect=null;
+    if(num<0||num>3){out.err.push(`${e.kind==='mob'?'mobilité':'furcation'} : grade 0 à 3`);endAnnot();return;}
+    pushUndo(true);
+    if(e.kind==='mob') chart.teeth[e.tooth].mob=num; else chart.teeth[e.tooth][e.face].furc=num;
+    out.acts.push({k:'msg',m:`${e.tooth} ${e.kind==='mob'?'mobilité':'furcation '+faceShort(e.tooth,e.face)} ${num}`});
+    endAnnot();return;
+  }
+  if(ctx.expectTooth){ctx.expectTooth=false;if(isTooth(num))jump(num,out);else out.err.push(`dent ${num} inconnue`);return;}
+  if(ctx.forceVal){ctx.forceVal=false;setValue(num,out);return;}
+  const ten=ctx.pendTen;ctx.pendTen=false;
+  if(num===10&&(k.type==='n'||k.s==='10')){ctx.pendTen=true;out.acts.push({k:'ten'});return;}
+  if(ten&&!strict&&(num===7||num===8)&&(k.type==='n'||k.s.length===1)) return jump(10+num,out);
+  if(k.type==='n'){
+    if(num>10&&isTooth(num)&&!strict) jump(num,out);
+    else if(num<=15) setValue(num,out);
+    else out.err.push(`${num} ignoré`);
+    return;
+  }
+  const s=k.s;
+  const digits=str=>{for(const ch of str)setValue(+ch,out);};
+  const boundary=!strict&&!ctx.oneShot&&(cursor.site===0||cursor.site>2||ctx.jumpFresh);
+  if(s.length===1) return setValue(num,out);
+  if(s.length===2){
+    if(isTooth(num)&&!strict) return jump(num,out);
+    return digits(s);
+  }
+  if(boundary&&s.length%3===2&&isTooth(parseInt(s.slice(0,2),10))){jump(parseInt(s.slice(0,2),10),out);return digits(s.slice(2));}
+  digits(s);
+}
+function onSite(k,out){
+  if(ctx.lastFlag){
+    const lf=ctx.lastFlag,F=chart.teeth[lf.tooth][lf.face];
+    if(!lf.refined){F[lf.key]=lf.prev.slice();lf.refined=true;}
+    F[lf.key][siteIdx(lf.tooth,k.val)]=lf.set;
+    out.acts.push({k:'msg',m:`→ ${SITE[k.val]} seulement`});
+    return;
+  }
+  const fresh=ctx.jumpFresh;
+  const tgt=fresh||cursor.site>0&&cursor.site<3||!lastEntry?{tooth:cursor.tooth,face:fresh?cursor.face:cursor.face}:{...lastEntry};
+  const ret=ctx.oneShot?ctx.oneShot.ret:(fresh?ctx.prevCursor:{...cursor});
+  const idx=siteIdx(tgt.tooth,k.val);
+  const filled=chart.teeth[tgt.tooth][tgt.face][cursor.param][idx]!=null;
+  cursor.tooth=tgt.tooth;cursor.face=tgt.face;cursor.site=idx;
+  ctx.jumpFresh=false;ctx.annot=null;
+  ctx.oneShot=(filled||ctx.corr)?{ret,remaining:1}:null;
+  ctx.corr=false;ctx.pendSite=k.val;
+}
+const numTok=k=>!!k&&(k.type==='d'||k.type==='n');
+const toothTok=k=>!k?null:(k.type==='d'&&k.s.length===2&&isTooth(+k.s))?+k.s:(k.type==='n'&&isTooth(k.val))?k.val:null;
+function process(toks,out){
+  for(let i=0;i<toks.length;i++){
+    const k=toks[i];const isNum=k.type==='d'||k.type==='n';
+    if(k.type!=='site'&&k.type!=='all') ctx.lastFlag=null;
+    if(ctx.expect&&!isNum){ctx.expect=null;endAnnot();}
+    if(!isNum){ctx.minus=false;ctx.forceVal=false;ctx.expectTooth=false;ctx.pendTen=false;ctx.pendSite=null;}
+    if(k.type!=='flag') { if(k.type!=='neg') ctx.neg=false; }
+    switch(k.type){
+      case 'd': case 'n': onNumber(k,out,toks[i+1]);break;
+      case 'tooth': ctx.expectTooth=true;break;
+      case 'val': ctx.forceVal=true;break;
+      case 'minus': ctx.minus=true;break;
+      case 'neg': ctx.neg=true;break;
+      case 'corr': ctx.corr=true;break;
+      case 'site': onSite(k,out);break;
+      case 'all': break;
+      case 'face':{
+        ctx.oneShot=null;ctx.annot=null;
+        if(ctx.jumpFresh){cursor.face=k.val;cursor.site=0;}
+        else if(cursor.face!==k.val||cursor.site>2){
+          const a=archOf(cursor.tooth);const t=teethOf(a).find(t=>chart.teeth[t].status!=='absent');
+          cursor.face=k.val;cursor.site=0;if(t)cursor.tooth=t;lastEntry=null;
+        }
+        out.acts.push({k:'msg',m:faceName(cursor.tooth,cursor.face).toLowerCase()});
+        break;}
+      case 'param': cursor.param=k.val;if(cursor.site>2)cursor.site=0;ctx.oneShot=null;ctx.annot=null;out.acts.push({k:'msg',m:PARAM[k.val].toLowerCase()});break;
+      case 'flag':{
+        const set=!ctx.neg;ctx.neg=false;
+        const sites=[];let all=false,tt=null;
+        for(;;){const nx=toks[i+1];if(!nx)break;
+          if(nx.type==='site'){sites.push(nx.val);i++;}
+          else if(nx.type==='all'){all=true;i++;}
+          else if(tt==null&&toothTok(nx)!=null&&!numTok(toks[i+2])){tt=toothTok(nx);i++;}
+          else break;}
+        const tgt=tt!=null?{tooth:tt,face:cursor.face}:annotTarget();ctx.annot=tgt;
+        pushUndo(true);
+        const F=chart.teeth[tgt.tooth][tgt.face];const prev=F[k.val].slice();
+        if(all||!sites.length){F[k.val]=[set,set,set];ctx.lastFlag={tooth:tgt.tooth,face:tgt.face,key:k.val,prev,set,refined:all};}
+        else{sites.forEach(s=>F[k.val][siteIdx(tgt.tooth,s)]=set);ctx.lastFlag={tooth:tgt.tooth,face:tgt.face,key:k.val,prev,set,refined:true};}
+        out.acts.push({k:'msg',m:`${tgt.tooth}${faceShort(tgt.tooth,tgt.face)} ${set?'':'pas de '}${FLAG[k.val]}${sites.length&&!all?' '+sites.map(s=>SITE[s]).join(' + '):''}`});
+        endAnnot();break;}
+      case 'mob': case 'furc':{
+        const tgt=annotTarget();ctx.annot=tgt;
+        ctx.expect={kind:k.type,tooth:tgt.tooth,face:tgt.face};break;}
+      case 'status':{
+        let t=cursor.tooth;if(toothTok(toks[i+1])!=null&&!numTok(toks[i+2])){t=toothTok(toks[i+1]);i++;}
+        pushUndo(true);chart.teeth[t].status=k.val;
+        out.acts.push({k:'msg',m:`${t} ${k.val==='absent'?'absente':k.val==='implant'?'implant':'présente'}`});
+        if(k.val==='present'&&ctx.jumpFresh){ctx.jumpFresh=false;ctx.prevCursor=null;} else endAnnot();
+        break;}
+      case 'next':{const n=nextTooth(cursor.tooth,cursor.face);ctx.oneShot=null;ctx.jumpFresh=false;ctx.annot=null;if(n){cursor.tooth=n.tooth;cursor.face=n.face;cursor.site=0;}break;}
+      case 'prev':{const n=prevTooth(cursor.tooth,cursor.face);ctx.oneShot=null;ctx.jumpFresh=false;ctx.annot=null;if(n){cursor.tooth=n.tooth;cursor.face=n.face;cursor.site=0;}break;}
+      case 'undo': if(undo.length){redo.push(snap());restore(undo.pop());out.acts.push({k:'msg',m:'annulé'});}else out.err.push('rien à annuler');break;
+      case 'redo': if(redo.length){undo.push(snap());restore(redo.pop());out.acts.push({k:'msg',m:'rétabli'});}break;
+      case 'stop': out.stop=true;break;
+      default: out.unknown.push(k.w);
+    }
+  }
+}
+function run(text){
+  const out={acts:[],err:[],unknown:[],done:0,pass:false,finished:false,stop:false};
+  process(tokenize(text),out);
+  return out;
+}
+function describe(out){
+  const parts=[];let g=null;
+  out.acts.forEach((a,i)=>{
+    if(a.k==='ten'){g=null;const nx=out.acts[i+1];if(!(nx&&nx.k==='jump'))parts.push('« 10 » ignoré (pour 10 mm : « valeur 10 »)');return;}
+    if(a.k==='val'&&!a.fix){
+      if(g&&g.t===a.t&&g.f===a.f) g.v.push(a.v); else{g={t:a.t,f:a.f,v:[a.v]};parts.push(g);}
+    }else{
+      g=null;
+      if(a.k==='val') parts.push(`correction ${a.t}${faceShort(a.t,a.f)} ${SITE[siteLetter(a.t,a.s)]} : ${a.old??'–'} → ${a.v}`);
+      else if(a.k==='msg') parts.push(a.m);
+    }
+  });
+  return parts.map(p=>typeof p==='string'?p:`${p.t}${faceShort(p.t,p.f)} ${p.v.join(' ')}`).join(' · ');
+}
+
+/* ───────── Reconnaissance vocale ───────── */
+const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+const TOUCH=matchMedia('(pointer:coarse)').matches;
+let wl=null;
+async function keepAwake(on){try{if(on&&!wl&&navigator.wakeLock){wl=await navigator.wakeLock.request('screen');wl.addEventListener('release',()=>{wl=null;});}else if(!on&&wl){const w=wl;wl=null;await w.release();}}catch(e){}}
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&listening){keepAwake(true);try{rec.start();}catch(e){}}});
+let rec=null,listening=false,actx=null,finalUpTo=-1;
+function beep(freq,dur,when=0,vol=.06){
+  if(!$('#oSound').checked||!actx)return;
+  const o=actx.createOscillator(),g=actx.createGain();o.frequency.value=freq;o.type='sine';
+  const t=actx.currentTime+when;g.gain.setValueAtTime(vol,t);g.gain.exponentialRampToValueAtTime(.0001,t+dur);
+  o.connect(g).connect(actx.destination);o.start(t);o.stop(t+dur);
+}
+function feedback(out){
+  if(out.err.length) beep(190,.18,0,.09);
+  else if(out.finished){beep(660,.09);beep(880,.09,.11);beep(1100,.14,.22);}
+  else if(out.pass){beep(740,.09);beep(990,.12,.11);}
+  else if(out.done) beep(880,.05);
+}
+function bestAlt(r){
+  let best=r[0].transcript,bs=-1;
+  for(let j=0;j<r.length;j++){
+    const tk=tokenize(r[j].transcript);if(!tk.length)continue;
+    const sc=tk.filter(k=>k.type!=='?').length/tk.length-j*.001;
+    if(sc>bs){bs=sc;best=r[j].transcript;}
+  }
+  return best;
+}
+// Chrome se trompe souvent sur le nombre de répétitions d'un même chiffre (« 2 2 2 » → « 2 2 2 2 2 »).
+// Parmi ses propositions qui ne diffèrent que par ces répétitions, on garde celle qui termine une dent complète.
+function keyOf(text){
+  const a=[];for(const k of tokenize(text)){if(k.type==='d')for(const c of k.s)a.push(c);else a.push(k.type+':'+(k.val??k.w));}
+  return a.filter((x,i)=>!(i&&x===a[i-1]&&/^\d$/.test(x))).join(' ');
+}
+function pickFinal(r){
+  const first=bestAlt(r),k0=keyOf(first),cands=[first];
+  for(let j=0;j<r.length;j++){const t=r[j].transcript;if(!cands.includes(t)&&keyOf(t)===k0)cands.push(t);}
+  const same=cands.length;
+  for(let j=0;j<r.length;j++){const t=r[j].transcript;if(!cands.includes(t))cands.push(t);}
+  if(cands.length<2)return first;
+  const b=takeBase();let pick=first,flawed=false;
+  const badTen=o=>o.acts.some((a,i)=>a.k==='ten'&&!(o.acts[i+1]&&o.acts[i+1].k==='jump'));
+  for(let c=0;c<cands.length;c++){
+    if(c>=same&&!flawed)break;
+    const out=run(cands[c]);
+    if(c===0){
+      flawed=!!(out.err.length||out.unknown.length||badTen(out));
+      if(!flawed&&!out.acts.some(a=>a.k==='val')){restore(b.s);undo.length=Math.min(undo.length,b.ul);redo=b.redo.slice();return first;}
+    }
+    let ok=!out.err.length&&!ctx.oneShot&&(cursor.site===0||out.finished);
+    // proposition au contenu différent : seulement si elle est entièrement comprise
+    if(ok&&c>=same) ok=!out.unknown.length&&out.acts.some(a=>a.k==='val')&&!badTen(out);
+    restore(b.s);undo.length=Math.min(undo.length,b.ul);redo=b.redo.slice();
+    if(ok){pick=cands[c];break;}
+  }
+  return pick;
+}
+function commitFinal(text,r){
+  if(base){restoreBase();base=null;}
+  if(r)text=pickFinal(r);
+  const out=run(text);
+  logEntry(text,out);feedback(out);save();
+  if(out.stop) stopListening();
+}
+function preview(text){
+  if(!text){if(base){restoreBase();base=null;}$('#vInterim').textContent='';return;}
+  if(base)restoreBase();else base=takeBase();
+  run(text);
+  $('#vInterim').textContent=text;
+}
+function startListening(){
+  if(!SR){toast('Reconnaissance vocale indisponible : ouvrez cette page dans Chrome (ou Safari sur iPhone).');return;}
+  if(!actx){try{actx=new (window.AudioContext||window.webkitAudioContext)();}catch(e){}}
+  if(!rec){
+    rec=new SR();rec.lang='fr-FR';rec.continuous=QS.get('cont')!=='0';rec.interimResults=QS.get('interim')!=='0';rec.maxAlternatives=+(QS.get('alt')||6);
+    rec.onresult=e=>{
+      DBG.push({t:Math.round(performance.now()),ri:e.resultIndex,n:e.results.length,r:Array.from(e.results).slice(e.resultIndex).map(r=>[r.isFinal?'F':'i',...Array.from(r).map(x=>x.transcript)])});if(DBG.length>400)DBG.shift();
+      let interim='';
+      for(let i=e.resultIndex;i<e.results.length;i++){
+        const r=e.results[i];
+        if(r.isFinal){ if(i>finalUpTo){finalUpTo=i;commitFinal('',r);} } else interim+=r[0].transcript+' ';
+      }
+      preview(interim.trim());render();
+    };
+    rec.onstart=()=>{finalUpTo=-1;};
+    rec.onerror=e=>{
+      if(e.error==='not-allowed'||e.error==='service-not-allowed'){listening=false;keepAwake(false);toast(TOUCH?'Micro ou dictée refusés : autorisez le micro pour ce site (sur iPhone : Réglages › Safari › Microphone, et Siri/Dictée activés).':'Micro refusé : autorisez le microphone pour cette page dans Chrome.');}
+      else if(e.error==='network'){toast('Reconnaissance vocale : connexion Internet nécessaire.');}
+      else if(e.error==='audio-capture'){listening=false;toast('Aucun microphone détecté.');}
+      renderVoice();
+    };
+    rec.onend=()=>{
+      if(base){restoreBase();base=null;$('#vInterim').textContent='';render();}
+      if(listening) setTimeout(()=>{try{rec.start();}catch(e){}},120);
+      renderVoice();
+    };
+  }
+  listening=true;try{rec.start();}catch(e){}
+  keepAwake(true);
+  renderVoice();
+}
+function stopListening(){listening=false;keepAwake(false);if(rec)try{rec.stop();}catch(e){}renderVoice();}
+const logLines=[];const DBG=[];
+function logEntry(text,out){
+  const d=describe(out);
+  let h=`<q>${esc(text.trim())}</q>`;
+  if(d) h+=` → ${esc(d)}`;
+  if(out.err.length) h+=` <span class="err">⚠ ${esc([...new Set(out.err)].join(' ; '))}</span>`;
+  if(out.unknown.length&&!d&&!out.err.length) h+=` <span class="err">non compris</span>`;
+  logLines.push(h);if(logLines.length>30)logLines.shift();
+  $('#vLog').innerHTML=logLines.slice(-2).map(l=>`<div>${l}</div>`).join('');
+}
+
+/* ───────── Édition manuelle ───────── */
+function manual(fn){
+  if(base)restoreBase();
+  fn();
+  if(base)base=takeBase();
+  render();save();
+}
+function typed(text){manual(()=>{const out=run(text);if(out.err.length)toast(out.err[0]);});}
+
+/* ───────── Rendu ───────── */
+const GH=112,CH=28,MM=5,TWpx=54;
+const CROWN={U:{1:38,2:30,3:34,4:32,5:30,6:46,7:44,8:40},L:{1:24,2:26,3:30,4:30,5:32,6:48,7:46,8:42}};
+const ROOT={U:{1:62,2:60,3:76,4:62,5:62,6:56,7:54,8:48},L:{1:54,2:58,3:72,4:62,5:62,6:58,7:54,8:48}};
+function toothSVG(t,cx,Y,implant){
+  const a=archOf(t),d=t%10,cw=CROWN[a][d],L=ROOT[a][d],h=cw/2,n=cw*.37;
+  const P=(x,v)=>(cx+x).toFixed(1)+' '+Y(v).toFixed(1);
+  let crown=`M${P(-n,0)}C${P(-h-1,-CH*.25)},${P(-h,-CH*.85)},${P(-h+5,-CH)}`;
+  crown+=d===3?`L${P(0,-CH-3)}L${P(h-5,-CH)}`:(d>=6?`L${P(-h*.35,-CH+2.5)}L${P(0,-CH)}L${P(h*.35,-CH+2.5)}L${P(h-5,-CH)}`:`L${P(h-5,-CH)}`);
+  crown+=`C${P(h,-CH*.85)},${P(h+1,-CH*.25)},${P(n,0)}Z`;
+  let root,extra='';
+  if(implant){
+    root=`M${P(-7,0)}L${P(-6.5,L*.82)}Q${P(0,L+2)},${P(6.5,L*.82)}L${P(7,0)}Z`;
+    for(let v=6;v<L*.8;v+=6) extra+=`<line x1="${(cx-8.5).toFixed(1)}" x2="${(cx+8.5).toFixed(1)}" y1="${Y(v).toFixed(1)}" y2="${Y(v+2).toFixed(1)}" stroke="#7b8794" stroke-width="1.2"/>`;
+    return `<path d="${root}" fill="#c5ccd6" stroke="#7b8794"/>${extra}<path d="${crown}" fill="#eef1f5" stroke="#7b8794"/>`;
+  }
+  if(d>=6){
+    const tr=13;
+    root=`M${P(-n,0)}L${P(-n-1,tr)}C${P(-n-2,L*.6)},${P(-n*.8,L*.95)},${P(-n*.55,L)}C${P(-n*.3,L*.9)},${P(-3,tr+16)},${P(0,tr)}C${P(3,tr+16)},${P(n*.3,L*.9)},${P(n*.55,L)}C${P(n*.8,L*.95)},${P(n+2,L*.6)},${P(n+1,tr)}L${P(n,0)}Z`;
+  }else root=`M${P(-n,0)}C${P(-n,L*.55)},${P(-3.5,L*.9)},${P(0,L)}C${P(3.5,L*.9)},${P(n,L*.55)},${P(n,0)}Z`;
+  return `<path d="${root}" fill="#f4ecdb" stroke="#b6a98c"/><path d="${crown}" fill="#fff" stroke="#8d99a8" stroke-width="1.2"/>`;
+}
+function graph(T,f,up,label,sep){
+  const Wd=TWpx*16;
+  const Y=v=>up?(GH-CH-4-v):(CH+4+v);
+  const cl=v=>Math.max(-CH,Math.min(GH-CH-6,v));
+  let s=`<svg class="g" viewBox="0 0 ${Wd} ${GH}" width="${Wd}" height="${GH}">`;
+  for(let mm=0;mm<=14;mm+=2) s+=`<line class="gl${mm%10===0?' gl5':''}" x1="0" x2="${Wd}" y1="${Y(mm*MM)}" y2="${Y(mm*MM)}"/>`;
+  T.forEach((t,i)=>{
+    if(t===cursor.tooth&&f===cursor.face) s+=`<rect class="cur-col" x="${i*TWpx}" y="0" width="${TWpx}" height="${GH}" fill="#0d948812"/>`;
+    const st=chart.teeth[t].status;if(st==='absent')return;
+    s+=toothSVG(t,i*TWpx+TWpx/2,Y,st==='implant');
+  });
+  s+=`<line x1="${8*TWpx}" x2="${8*TWpx}" y1="0" y2="${GH}" stroke="#94a3b8" stroke-width="1.5"/>`;
+  const runs=(c,needPd)=>{const R=[];let cur=null;
+    T.forEach((t,i)=>{const tt=c.teeth[t];
+      if(!tt||tt.status==='absent'){cur=null;return;}
+      for(let k=0;k<3;k++){const pd=tt[f].pd[k],rc=tt[f].rec[k]||0;
+        if(needPd&&pd==null){cur=null;continue;}
+        if(!cur){cur=[];R.push(cur);}
+        cur.push({x:i*TWpx+TWpx/2+(k-1)*TWpx*.3,m:cl(rc*MM),b:pd==null?null:cl((rc+pd)*MM)});
+      }});
+    return R;};
+  const pts=(r,key)=>r.map(p=>p.x.toFixed(1)+','+Y(p[key]).toFixed(1)).join(' ');
+  for(const r of runs(chart,true)){
+    s+=`<polygon points="${pts(r,'m')} ${pts(r.slice().reverse(),'b')}" fill="#2563eb26"/>`;
+    s+=r.length>1?`<polyline points="${pts(r,'b')}" fill="none" stroke="#2563eb" stroke-width="1.6" stroke-linejoin="round"/>`:`<circle cx="${r[0].x}" cy="${Y(r[0].b)}" r="2" fill="#2563eb"/>`;
+  }
+  if(ref) for(const r of runs(ref,true)) if(r.length>1) s+=`<polyline points="${pts(r,'b')}" fill="none" stroke="#64748b" stroke-width="1.2" stroke-dasharray="4 3"/>`;
+  for(const r of runs(chart,false)) s+=`<polyline points="${pts(r,'m')}" fill="none" stroke="#dc2626" stroke-width="1.6" stroke-linejoin="round"/>`;
+  s+='</svg>';
+  return `<div class="row r-g${sep?' sep':''}"><div class="lab">${label}</div>${s}</div>`;
+}
+function rowHTML(cls,label,T,cellFn){
+  return `<div class="row ${cls}"><div class="lab">${label}</div>${T.map(t=>cellFn(t,chart.teeth[t])).join('')}</div>`;
+}
+const refTooth=t=>ref&&ref.teeth[t]&&ref.teeth[t].status!=='absent'?ref.teeth[t]:null;
+const gradeHTML=(o,n)=>`<span>${o!=null&&o!==n?`<small class="pv">${o}›</small>`:''}${n||(o!=null&&o!==n?0:'')}</span>`;
+function faceRows(T,f){
+  const colc=(t,tt)=>(tt.status==='absent'?' abs':'')+(t===cursor.tooth&&f===cursor.face?' col':'');
+  const valRow=(p,label)=>rowHTML('r-'+p,label,T,(t,tt)=>`<div class="c${colc(t,tt)}">${[0,1,2].map(s=>{
+    const v=tt[f][p][s];const cur=t===cursor.tooth&&f===cursor.face&&s===cursor.site&&p===cursor.param;
+    const sev=p==='pd'&&v!=null?(v>=6?' hi':v>=4?' mid':''):'';
+    return `<span class="v${sev}${cur?' cur':''}" data-a="val" data-t="${t}" data-f="${f}" data-p="${p}" data-s="${s}" title="${t} ${SITE[siteLetter(t,s)]}">${v??''}</span>`;}).join('')}</div>`);
+  const flagRow=(key,label)=>rowHTML('r-flag r-'+key,label,T,(t,tt)=>`<div class="c${colc(t,tt)}">${[0,1,2].map(s=>`<i class="dot${tt[f][key][s]?' on':''}${refTooth(t)&&refTooth(t)[f][key][s]?' was':''}" data-a="flag" data-t="${t}" data-f="${f}" data-k="${key}" data-s="${s}"></i>`).join('')}</div>`);
+  const rows=[
+    rowHTML('r-furc','Furcation',T,(t,tt)=>`<div class="c one${colc(t,tt)}" data-a="furc" data-t="${t}" data-f="${f}">${gradeHTML(refTooth(t)?refTooth(t)[f].furc:null,tt[f].furc)}</div>`),
+    flagRow('sup','Suppuration'),flagRow('pl','Plaque'),flagRow('bop','Saignement'),
+  ];
+  const prevRow=(p,label)=>rowHTML('r-prev',label,T,(t,tt)=>{const R=refTooth(t);
+    return `<div class="c${tt.status==='absent'?' abs':''}">${[0,1,2].map(s=>{const o=R?R[f][p][s]:null,n=tt[f][p][s];
+      const c=o!=null&&n!=null?(n<o?' better':n>o?' worse':''):'';return `<span class="v${c}">${o??''}</span>`;}).join('')}</div>`;});
+  if(ref) rows.push(prevRow('rec','Récession préc.'));
+  rows.push(valRow('rec','Récession'));
+  if(ref) rows.push(prevRow('pd','Sondage préc.'));
+  rows.push(valRow('pd','Sondage'));
+  return rows;
+}
+function archHTML(a){
+  const T=teethOf(a);
+  const num=cls=>rowHTML('r-num '+cls,'',T,(t,tt)=>`<div class="c one${tt.status==='absent'?' abs':''}${tt.status==='implant'?' imp':''}${t===cursor.tooth?' cur':''}" data-a="status" data-t="${t}" title="Cliquer : présente → implant → absente"><span>${t}</span></div>`);
+  const mob=rowHTML('r-mob','Mobilité',T,(t,tt)=>`<div class="c one${tt.status==='absent'?' abs':''}" data-a="mob" data-t="${t}">${gradeHTML(refTooth(t)?refTooth(t).mob:null,tt.mob)}</div>`);
+  const V=faceRows(T,'V'),O=faceRows(T,'O');
+  let h=`<section class="arch"><h3>${a==='U'?'Maxillaire':'Mandibule'}</h3>`;
+  if(a==='U') h+=num('first')+mob+V.join('')+graph(T,'V',true,'Vestibulaire',true)+graph(T,'O',false,'Palatin')+O.reverse().join('');
+  else h+=O.join('').replace('class="row ','class="row first ')+graph(T,'O',true,'Lingual',true)+graph(T,'V',false,'Vestibulaire')+V.reverse().join('')+mob+num('');
+  return h+'</section>';
+}
+function stats(c){
+  let n=0,sum=0,cal=0,bop=0,pl=0,sup=0,sites=0,s4=0,s6=0,teeth=0;
+  ALL.forEach(t=>{const T=c.teeth[t];if(!T||T.status==='absent')return;teeth++;
+    ['V','O'].forEach(f=>{for(let i=0;i<3;i++){sites++;const F=T[f];if(F.bop[i])bop++;if(F.pl[i])pl++;if(F.sup[i])sup++;
+      const p=F.pd[i];if(p!=null){n++;sum+=p;cal+=p+(F.rec[i]||0);if(p>=6)s6++;else if(p>=4)s4++;}}});});
+  return{teeth,n,sites,pd:n?sum/n:null,cal:n?cal/n:null,bop:sites?100*bop/sites:0,pl:sites?100*pl/sites:0,sup,s4,s6};
+}
+function renderSummary(){
+  const s=stats(chart),r=ref?stats(ref):null;
+  const f1=v=>v==null?'–':v.toFixed(1).replace('.',',');
+  const pc=v=>Math.round(v)+' %';
+  const dl=(a,b,fmt)=>{if(!r||a==null||b==null)return'';const d=a-b;if(Math.abs(d)<.05)return'<em>=</em>';return `<em class="${d<0?'better':'worse'}">${d>0?'+':'−'}${fmt(Math.abs(d))}</em>`;};
+  const k=(val,label,d='')=>`<div class="kpi"><b>${val}${d}</b><span>${label}</span></div>`;
+  let h='';
+  if(ref) h+=`<div class="cmp-banner"><span>Comparaison avec le charting du <b>${esc(frDate(ref.patient.date))}</b> (${esc(ref.patient.type||'')}) — tracé gris pointillé, lignes « préc. », point cerclé = saignement / plaque / suppuration présents la fois précédente, « 1›2 » = grade précédent › actuel.</span><button class="btn sm no-print" id="bUnref" style="margin-left:auto">Retirer</button></div>`;
+  h+=`<h3>Synthèse</h3><div class="kpis">`+
+    k(f1(s.pd)+' <small style="font-size:12px">mm</small>','Profondeur de sondage moyenne',dl(s.pd,r&&r.pd,f1))+
+    k(f1(s.cal)+' <small style="font-size:12px">mm</small>','Niveau d\'attache moyen',dl(s.cal,r&&r.cal,f1))+
+    k(pc(s.bop),'Saignement au sondage',dl(s.bop,r&&r.bop,v=>Math.round(v)+' pts'))+
+    k(pc(s.pl),'Plaque',dl(s.pl,r&&r.pl,v=>Math.round(v)+' pts'))+
+    k(s.s4,'Sites de 4–5 mm',dl(s.s4,r&&r.s4,v=>v))+
+    k(s.s6,'Sites ≥ 6 mm',dl(s.s6,r&&r.s6,v=>v))+`</div>`;
+  h+=`<div class="legend"><span>${s.teeth} dents présentes · ${s.n}/${s.sites} sites sondés${s.sup?` · ${s.sup} site(s) avec suppuration`:''}</span>
+    <span><i style="background:#dc2626"></i>marge gingivale</span><span><i style="background:#2563eb"></i>fond de poche</span>
+    <span><b style="color:var(--amber)">4–5</b> mm · <b style="color:var(--red)">≥ 6</b> mm</span>
+    <span>récession : + = récession, − = gencive coronaire à la JEC</span>${ref?'<span><i style="background:#64748b"></i>fond de poche précédent (pointillé) · point cerclé = présent la fois précédente · « 2›1 » = grade précédent › actuel · préc. en vert = amélioré, rouge = aggravé</span>':''}</div>`;
+  $('#summary').innerHTML=h;
+}
+function renderPrintHead(){
+  const p=chart.patient;
+  $('#printHead').innerHTML=`<div><h1>Charting parodontal</h1><div class="sub">${esc(p.type)}${ref?' — comparé au '+esc(frDate(ref.patient.date)):''}</div></div>
+   <div class="r"><b style="font-size:15px">${esc((p.nom||'').toUpperCase())} ${esc(p.prenom)}</b><br>${p.ddn?'Né(e) le '+esc(frDate(p.ddn))+' · ':''}Examen du ${esc(frDate(p.date))}${p.praticien?'<br>'+esc(p.praticien):''}</div>`;
+}
+function renderVoice(){
+  const t=cursor.tooth,T=chart.teeth[t];
+  $('#pNum').textContent=t;
+  $('#pFace').textContent=faceName(t,cursor.face);
+  $('#pParam').textContent=PARAM[cursor.param]+(cursor.site>2?' · terminé':'');
+  $('#pSlots').innerHTML=[0,1,2].map(s=>`<div class="slot${s===cursor.site?' cur':''}"><small>${siteLetter(t,s)}</small>${T[cursor.face][cursor.param][s]??'&nbsp;'}</div>`).join('');
+  $('#mic').classList.toggle('on',listening);
+  const st=$('#vStatus');st.classList.toggle('on',listening);
+  st.textContent=!SR?'Dictée indisponible dans ce navigateur — utilisez Chrome (ou Safari sur iPhone)':(listening?'● À l\'écoute…':(TOUCH?'Dictée arrêtée — touchez le micro':'Dictée arrêtée — cliquez le micro ou barre d\'espace'));
+}
+function render(){
+  document.body.classList.toggle('cmp',!!ref);
+  $('#chart').innerHTML=archHTML('U')+archHTML('L');
+  renderVoice();renderSummary();renderPrintHead();
+  followCursor();
+}
+let followKey='',followT;
+function followCursor(){
+  if(base)return; // pas pendant l'aperçu en direct
+  const key=cursor.tooth+cursor.face+cursor.param;
+  if(key===followKey)return;followKey=key;
+  clearTimeout(followT);
+  followT=setTimeout(()=>{ // regroupe les changements rapprochés en un seul défilement
+    const el=document.querySelector('.v.cur');if(!el)return;
+    const sh=$('#sheet'),col=el.parentElement.getBoundingClientRect(),sr=sh.getBoundingClientRect();
+    const behavior=matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth';
+    // horizontal : centrer la dent en cours dans la zone visible à droite des libellés
+    if(sh.scrollWidth>sh.clientWidth+4){
+      const lab=parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--lab'))||0;
+      const center=col.left-sr.left+sh.scrollLeft+col.width/2;
+      const target=Math.max(0,Math.min(sh.scrollWidth-sh.clientWidth,center-(lab+(sh.clientWidth-lab)/2)));
+      if(Math.abs(target-sh.scrollLeft)>4)sh.scrollTo({left:target,behavior});
+    }
+    // vertical : garder la case entre la barre de dictée et le pavé
+    const cs=getComputedStyle(document.documentElement),b=el.getBoundingClientRect();
+    const top=(parseFloat(cs.getPropertyValue('--stick'))||0)+8,bottom=innerHeight-(parseFloat(cs.getPropertyValue('--kp'))||0)-12;
+    if(b.bottom>bottom)window.scrollBy({top:b.bottom-bottom+40,behavior});
+    else if(b.top<top)window.scrollBy({top:b.top-top-40,behavior});
+  },80);
+}
+function syncPatientForm(){document.querySelectorAll('#patient [data-k]').forEach(el=>{el.value=chart.patient[el.dataset.k]||'';});renderPtSum();}
+function renderPtSum(){const p=chart.patient;const n=[(p.nom||'').toUpperCase(),p.prenom].filter(Boolean).join(' ');
+  $('#ptSum').textContent=n||'Patient — touchez pour renseigner';$('#ptDate').textContent=[p.type,frDate(p.date)].filter(Boolean).join(' · ');}
+
+/* ───────── Sauvegarde ───────── */
+const LS={cur:'cc.current',lib:'cc.library',ref:'cc.ref'};
+const QS=new URLSearchParams(location.search),DIAG=QS.has('dbg');
+function save(){if(DIAG)return;try{localStorage.setItem(LS.cur,JSON.stringify({chart,cursor}));if(ref)localStorage.setItem(LS.ref,JSON.stringify(ref));else localStorage.removeItem(LS.ref);}catch(e){}}
+function getLib(){try{return JSON.parse(localStorage.getItem(LS.lib))||[];}catch(e){return[];}}
+function setLib(l){try{localStorage.setItem(LS.lib,JSON.stringify(l));}catch(e){toast('Stockage plein : exportez puis supprimez d\'anciens dossiers.');}}
+function normalize(c){
+  if(!c||!c.teeth)throw new Error('format');
+  const n=newChart();n.id=c.id||n.id;Object.assign(n.patient,c.patient||{});
+  ALL.forEach(t=>{const s=c.teeth[t];if(!s)return;const d=n.teeth[t];
+    if(['present','absent','implant'].includes(s.status))d.status=s.status;d.mob=+s.mob||0;
+    ['V','O'].forEach(f=>{if(!s[f])return;['pd','rec'].forEach(p=>{if(Array.isArray(s[f][p]))d[f][p]=[0,1,2].map(i=>typeof s[f][p][i]==='number'?s[f][p][i]:null);});
+      ['bop','pl','sup'].forEach(p=>{if(Array.isArray(s[f][p]))d[f][p]=[0,1,2].map(i=>!!s[f][p][i]);});d[f].furc=+s[f].furc||0;});});
+  return n;
+}
+function loadChart(c,keepRef){
+  chart=normalize(c);if(!keepRef)ref=null;
+  undo=[];redo=[];base=null;ctx=newCtx();lastEntry=null;
+  const f=firstOfPass(0)||{tooth:18,face:'V'};cursor={tooth:f.tooth,face:f.face,site:0,param:'pd'};
+  syncPatientForm();render();save();
+}
+function isEmpty(){return !chart.patient.nom&&ALL.every(t=>{const T=chart.teeth[t];return T.status==='present'&&['V','O'].every(f=>T[f].pd.every(v=>v==null)&&T[f].rec.every(v=>v==null));});}
+function saveToLib(){
+  const l=getLib();const i=l.findIndex(e=>e.chart.id===chart.id);
+  const e={savedAt:new Date().toISOString(),chart:JSON.parse(JSON.stringify(chart))};
+  if(i>=0)l[i]=e;else l.unshift(e);setLib(l);
+  toast('Charting enregistré dans « Dossiers »');
+}
+function fileName(ext){const p=chart.patient;return ['Charting',p.nom,p.prenom,p.date].filter(Boolean).join('_').replace(/[^\p{L}\p{N}_-]+/gu,'-')+ext;}
+function exportFile(){
+  const b=new Blob([JSON.stringify(chart,null,1)],{type:'application/json'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=fileName('.json');a.click();setTimeout(()=>URL.revokeObjectURL(a.href),2000);
+}
+function renderLib(){
+  const l=getLib();
+  $('#libList').innerHTML=l.length?l.map((e,i)=>{const p=e.chart.patient;
+    return `<div class="lib-item"><div class="who"><b>${esc((p.nom||'Sans nom').toUpperCase())} ${esc(p.prenom||'')}</b><span>${esc(p.type||'')} · examen du ${esc(frDate(p.date))}${e.chart.id===chart.id?' · ouvert':''}</span></div>
+      <button class="btn sm" data-lib="open" data-i="${i}">Ouvrir</button>
+      <button class="btn sm" data-lib="ref" data-i="${i}" title="Afficher ce charting en comparaison du charting actuel">Comparer</button>
+      <button class="btn sm" data-lib="reeval" data-i="${i}" title="Nouveau charting pour ce patient, comparé à celui-ci">Réévaluation</button>
+      <button class="btn sm danger" data-lib="del" data-i="${i}">Supprimer</button></div>`;}).join(''):'<p class="note">Aucun dossier enregistré pour l\'instant.</p>';
+}
+let toastT;
+function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('show'),3200);}
+
+/* ───────── Événements ───────── */
+$('#chart').addEventListener('click',e=>{
+  const el=e.target.closest('[data-a]');if(!el)return;
+  const d=el.dataset,t=+d.t;
+  manual(()=>{
+    const T=chart.teeth[t];
+    switch(d.a){
+      case 'val': if(T.status==='absent')return;cursor={tooth:t,face:d.f,site:+d.s,param:d.p};ctx=newCtx();lastEntry=null;break;
+      case 'flag': pushUndo();T[d.f][d.k][+d.s]=!T[d.f][d.k][+d.s];break;
+      case 'mob': pushUndo();T.mob=(T.mob+1)%4;break;
+      case 'furc': pushUndo();T[d.f].furc=(T[d.f].furc+1)%4;break;
+      case 'status': pushUndo();T.status={present:'implant',implant:'absent',absent:'present'}[T.status];ctx=newCtx();fixCursor();break;
+    }
+  });
+});
+$('#chart').addEventListener('dblclick',e=>{
+  const el=e.target.closest('[data-a="val"]');if(!el)return;
+  const r=prompt('Valeur (mm) :');if(r==null||r.trim()==='')return;
+  const v=parseInt(r,10);if(isNaN(v))return;
+  typed((v<0?'moins ':'')+'valeur '+Math.abs(v));
+});
+document.addEventListener('keydown',e=>{
+  const tg=e.target.matches?e.target:document.body;
+  if(tg.matches('input,textarea,select')||document.querySelector('dialog[open]')||e.metaKey||e.ctrlKey||e.altKey){
+    if((e.metaKey||e.ctrlKey)&&e.key.toLowerCase()==='z'&&!tg.matches('input,textarea')){e.preventDefault();typed(e.shiftKey?'rétablir':'annuler');}
+    return;
+  }
+  if(e.key===' '){if(tg.matches('button'))return;e.preventDefault();listening?stopListening():startListening();return;}
+  const k={Backspace:'back',ArrowRight:'right',ArrowLeft:'left',Tab:e.shiftKey?'prev':'next','-':'-'}[e.key]||(/^[0-9]$/.test(e.key)?e.key:null);
+  if(k){e.preventDefault();keyAct(k);}
+});
+let pendingMinus=false;
+function setMinus(v){pendingMinus=v;$('#kpMinus').classList.toggle('on',v);}
+function keyAct(k){
+  if(/^[0-9]$/.test(k)){typed((pendingMinus?'moins ':'')+'valeur '+k);setMinus(false);return;}
+  if(k==='-'){setMinus(!pendingMinus);return;}
+  if(k==='undo'){typed('annuler');return;}
+  if(k==='next'||k==='prev'){typed(k==='next'?'suivante':'précédente');return;}
+  if(k==='back'){manual(()=>{
+    ctx=newCtx();let c={...cursor};
+    if(c.site>0)c.site--;else{const p=prevTooth(c.tooth,c.face);if(!p)return;c.tooth=p.tooth;c.face=p.face;c.site=2;}
+    pushUndo();cursor=c;chart.teeth[c.tooth][c.face][c.param][c.site]=null;});return;}
+  if(k==='left'||k==='right'){manual(()=>{
+    ctx=newCtx();lastEntry=null;const dir=k==='right'?1:-1;let s=Math.min(cursor.site,2)+dir;
+    if(s>2){const n=nextTooth(cursor.tooth,cursor.face);if(n){cursor.tooth=n.tooth;cursor.face=n.face;cursor.site=0;}}
+    else if(s<0){const p=prevTooth(cursor.tooth,cursor.face);if(p){cursor.tooth=p.tooth;cursor.face=p.face;cursor.site=2;}}
+    else cursor.site=s;});}
+}
+$('#kp').addEventListener('click',e=>{const b=e.target.closest('[data-k]');if(!b)return;if(navigator.vibrate)try{navigator.vibrate(6);}catch(_){}keyAct(b.dataset.k);});
+$('#oKp').onchange=e=>{document.body.classList.toggle('kp-off',!e.target.checked);try{localStorage.setItem('cc.kpoff',e.target.checked?'':'1');}catch(_){}measure();};
+$('#ptToggle').onclick=()=>{document.body.classList.toggle('pt-open');measure();};
+/* hauteurs de la barre de dictée et du pavé, pour que le défilement automatique ne cache rien */
+function measure(){
+  const r=document.documentElement.style;
+  r.setProperty('--stick',$('.voice').offsetHeight+'px');
+  r.setProperty('--kp',$('#kp').offsetHeight+'px');
+}
+if(window.ResizeObserver){const ro=new ResizeObserver(measure);ro.observe($('.voice'));ro.observe($('#kp'));}
+window.addEventListener('resize',measure);
+$('#mic').onclick=()=>{if(listening)stopListening();else{if(matchMedia('(max-width:700px)').matches&&document.body.classList.contains('pt-open')){document.body.classList.remove('pt-open');measure();followKey='';}startListening();render();}};
+$('#patient').addEventListener('input',e=>{const k=e.target.dataset.k;if(!k)return;chart.patient[k]=e.target.value;renderPrintHead();renderPtSum();save();});
+$('#bPdf').onclick=()=>{const old=document.title;document.title=fileName('');window.print();setTimeout(()=>document.title=old,1000);};
+$('#bSave').onclick=saveToLib;
+$('#bNew').onclick=()=>{if(!isEmpty()&&!confirm('Commencer un nouveau charting ? Le charting actuel ne sera conservé que s\'il a été enregistré.'))return;loadChart(newChart());};
+$('#bLib').onclick=()=>{renderLib();$('#dLib').showModal();};
+$('#bHelp').onclick=()=>$('#dHelp').showModal();
+document.querySelectorAll('[data-close]').forEach(b=>b.onclick=()=>b.closest('dialog').close());
+document.querySelectorAll('dialog').forEach(d=>d.addEventListener('click',e=>{if(e.target===d)d.close();}));
+$('#bExport').onclick=exportFile;
+let importAs='open';
+$('#bImport').onclick=()=>{importAs='open';$('#fImport').click();};
+$('#bImportRef').onclick=()=>{importAs='ref';$('#fImport').click();};
+$('#fImport').onchange=async e=>{
+  const f=e.target.files[0];e.target.value='';if(!f)return;
+  try{const c=normalize(JSON.parse(await f.text()));
+    if(importAs==='ref'){ref=c;render();save();toast('Comparaison chargée');}
+    else{loadChart(c);toast('Charting importé');}
+    $('#dLib').close();
+  }catch(err){toast('Fichier illisible : ce n\'est pas un charting exporté.');}
+};
+$('#libList').addEventListener('click',e=>{
+  const b=e.target.closest('[data-lib]');if(!b)return;const l=getLib(),it=l[+b.dataset.i];if(!it)return;
+  switch(b.dataset.lib){
+    case 'open': loadChart(it.chart);$('#dLib').close();break;
+    case 'ref': ref=normalize(it.chart);render();save();$('#dLib').close();toast('Comparaison chargée');break;
+    case 'reeval':{const n=newChart();Object.assign(n.patient,it.chart.patient,{date:today(),type:'Réévaluation',notes:''});
+      ALL.forEach(t=>{n.teeth[t].status=it.chart.teeth[t].status;});
+      const r=normalize(it.chart);loadChart(n);ref=r;render();save();$('#dLib').close();break;}
+    case 'del': if(confirm('Supprimer définitivement ce dossier ?')){l.splice(+b.dataset.i,1);setLib(l);renderLib();}break;
+  }
+});
+$('#summary').addEventListener('click',e=>{if(e.target.id==='bUnref'){ref=null;render();save();}});
+
+/* ───────── Démarrage ───────── */
+(function init(){
+  try{
+    const s=JSON.parse(localStorage.getItem(LS.cur));
+    if(s&&s.chart){chart=normalize(s.chart);if(s.cursor&&isTooth(s.cursor.tooth))cursor={tooth:s.cursor.tooth,face:s.cursor.face==='O'?'O':'V',site:Math.min(+s.cursor.site||0,3),param:s.cursor.param==='rec'?'rec':'pd'};fixCursor();}
+    const r=JSON.parse(localStorage.getItem(LS.ref));if(r)ref=normalize(r);
+  }catch(e){}
+  if(DIAG){chart=newChart();cursor={tooth:18,face:'V',site:0,param:'pd'};ref=null;}
+  try{if(localStorage.getItem('cc.kpoff')){$('#oKp').checked=false;document.body.classList.add('kp-off');}}catch(e){}
+  if(!chart.patient.nom)document.body.classList.add('pt-open');
+  syncPatientForm();measure();render();
+  if('serviceWorker' in navigator&&(location.protocol==='https:'||location.hostname==='localhost'))navigator.serviceWorker.register('sw.js').catch(()=>{});
+  if(navigator.storage&&navigator.storage.persist)navigator.storage.persist().catch(()=>{});
+})();
+window.CC={setRef:c=>{ref=normalize(c);render();},final:a=>{const r=a.map(t=>({transcript:t}));commitFinal('',r);render();},debug:()=>DBG,say:t=>{commitFinal(t);render();},preview:t=>{preview(t);render();},state:()=>({chart,cursor,ctx,lastEntry}),tokenize};
+</script>
+</body>
+</html>
